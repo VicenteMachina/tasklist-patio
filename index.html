@@ -89,7 +89,7 @@
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Observaciones / Falla / Diagnóstico</label>
+          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Observación / Falla</label>
           <input type="text" id="observacion" placeholder="Ej. Cambio de cauchos traseros, falla en alternador, mantenimiento preventivo" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition">
         </div>
 
@@ -174,7 +174,7 @@
         </div>
         <div>
           <h3 class="font-bold text-zinc-800 text-lg">Editar Registro</h3>
-          <p class="text-xs text-zinc-500">Modifica los detalles u observación del vehículo</p>
+          <p class="text-xs text-zinc-500">Modifica los detalles del vehículo</p>
         </div>
       </div>
 
@@ -189,8 +189,8 @@
           <input type="text" id="editPlaca" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase">
         </div>
         <div>
-          <label class="text-xs font-medium text-zinc-500 uppercase">Observación / Falla / Detalle</label>
-          <input type="text" id="editObservacion" placeholder="Detalle de la falla u observación" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500">
+          <label class="text-xs font-medium text-zinc-500 uppercase">Observación / Falla</label>
+          <input type="text" id="editObservacion" placeholder="Detalle de la falla o motivo" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500">
         </div>
       </div>
 
@@ -216,8 +216,8 @@
       <p id="modalMensajeTexto" class="text-sm text-zinc-600"></p>
       
       <div>
-        <label class="text-xs font-medium text-zinc-500 uppercase">Actualizar / Agregar Observación (Opcional)</label>
-        <input type="text" id="observacionAlPasoOperativo" placeholder="Ej. Reparación de alternador completada" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 mt-1">
+        <label class="text-xs font-medium text-zinc-500 uppercase">Observación / Nota Final</label>
+        <input type="text" id="observacionAlPasoOperativo" placeholder="Mantiene la observación actual o ingresa una nueva" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 mt-1">
       </div>
 
       <div class="flex justify-end gap-3 pt-2">
@@ -300,7 +300,7 @@
         .eq('fecha', fechaSeleccionada)
         .order('created_at', { ascending: true });
 
-      // 2. Cargar TODOS los vehículos en PATIO cuya fecha de ingreso sea menor o igual a la consultada
+      // 2. Cargar TODOS los vehículos en PATIO cuya fecha de ingreso sea menor o igual a la fecha consultada (se arrastran automáticamente manteniendo su observacion)
       const { data: dataPatio, error: errPatio } = await db
         .from('registros_flota')
         .select('*')
@@ -336,9 +336,10 @@
           const fechaIngreso = new Date(reg.fecha + 'T00:00:00');
           const difMs = fechaRef - fechaIngreso;
           const diasPatio = Math.floor(difMs / (1000 * 60 * 60 * 24)) + 1;
+          
           const obsHtml = reg.observacion 
             ? `<p class="text-xs text-amber-900 bg-amber-50 p-1.5 rounded-lg border border-amber-200 mt-1.5 flex items-start gap-1"><span class="material-symbols-outlined text-sm shrink-0">info</span> <span><strong>Obs:</strong> ${reg.observacion}</span></p>` 
-            : `<p class="text-xs text-zinc-400 italic mt-1 font-light">Sin observaciones registradas.</p>`;
+            : `<p class="text-xs text-zinc-400 italic mt-1 font-light">Sin observación registrada.</p>`;
 
           containerPatio.innerHTML += `
             <div class="p-3 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
@@ -370,7 +371,7 @@
         registrosOperativos.forEach((reg, idx) => {
           const obsHtml = reg.observacion 
             ? `<p class="text-xs text-emerald-900 bg-emerald-50/80 p-1.5 rounded-lg border border-emerald-200/80 mt-1.5 flex items-start gap-1"><span class="material-symbols-outlined text-sm shrink-0">info</span> <span><strong>Obs:</strong> ${reg.observacion}</span></p>` 
-            : `<p class="text-xs text-zinc-400 italic mt-1 font-light">Sin observaciones registradas.</p>`;
+            : `<p class="text-xs text-zinc-400 italic mt-1 font-light">Sin observación registrada.</p>`;
 
           containerOperativos.innerHTML += `
             <div class="p-3 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
