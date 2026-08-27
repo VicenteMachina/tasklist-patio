@@ -88,6 +88,11 @@
           </div>
         </div>
 
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Observaciones / Falla / Diagnóstico</label>
+          <input type="text" id="observacion" placeholder="Ej. Cambio de cauchos traseros, falla en alternador, mantenimiento preventivo" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition">
+        </div>
+
         <button onclick="agregarRegistro()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
           <span class="material-symbols-outlined text-lg">playlist_add</span>
           Añadir al Registro
@@ -169,7 +174,7 @@
         </div>
         <div>
           <h3 class="font-bold text-zinc-800 text-lg">Editar Vehículo en Patio</h3>
-          <p class="text-xs text-zinc-500">Modifica los detalles del registro pendiente</p>
+          <p class="text-xs text-zinc-500">Modifica los detalles o la falla del registro</p>
         </div>
       </div>
 
@@ -182,6 +187,10 @@
         <div>
           <label class="text-xs font-medium text-zinc-500 uppercase">Placa</label>
           <input type="text" id="editPlaca" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase">
+        </div>
+        <div>
+          <label class="text-xs font-medium text-zinc-500 uppercase">Observación / Falla</label>
+          <input type="text" id="editObservacion" placeholder="Detalle de la falla o motivo en patio" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500">
         </div>
       </div>
 
@@ -322,20 +331,22 @@
           const fechaIngreso = new Date(reg.fecha + 'T00:00:00');
           const difMs = fechaRef - fechaIngreso;
           const diasPatio = Math.floor(difMs / (1000 * 60 * 60 * 24)) + 1;
+          const obsHtml = reg.observacion ? `<p class="text-xs text-amber-900 bg-amber-50 p-1.5 rounded-lg border border-amber-200 mt-1.5 flex items-start gap-1"><span class="material-symbols-outlined text-sm shrink-0">info</span> <span><strong>Obs:</strong> ${reg.observacion}</span></p>` : '';
 
           containerPatio.innerHTML += `
-            <div class="p-3 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-center gap-2 shadow-sm hover:bg-white transition">
-              <div class="text-xs sm:text-sm">
+            <div class="p-3 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
+              <div class="text-xs sm:text-sm flex-1">
                 <p class="font-bold text-zinc-800">${idx + 1}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code> 
                 <span class="bg-amber-200/80 text-amber-900 font-bold px-2 py-0.5 rounded text-[11px] ml-1">⏱️ ${diasPatio} ${diasPatio === 1 ? 'día' : 'días'}</span></p>
+                ${obsHtml}
               </div>
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-1 shrink-0">
                 <!-- Botón Editar -->
-                <button onclick="abrirModalEditar('${reg.id}', '${reg.vehiculo}', '${reg.placa}')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 p-1.5 rounded-lg transition flex items-center justify-center" title="Editar Vehículo">
+                <button onclick="abrirModalEditar('${reg.id}', '${reg.vehiculo.replace(/'/g, "\\'")}', '${reg.placa}', '${(reg.observacion || '').replace(/'/g, "\\'")}')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 p-1.5 rounded-lg transition flex items-center justify-center" title="Editar Vehículo">
                   <span class="material-symbols-outlined text-base">edit</span>
                 </button>
                 <!-- Botón Operativo -->
-                <button onclick="abrirModalOperativo('${reg.id}', '${reg.vehiculo}', '${reg.placa}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 p-1.5 rounded-lg transition flex items-center justify-center" title="Marcar como Operativo">
+                <button onclick="abrirModalOperativo('${reg.id}', '${reg.vehiculo.replace(/'/g, "\\'")}', '${reg.placa}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 p-1.5 rounded-lg transition flex items-center justify-center" title="Marcar como Operativo">
                   <span class="material-symbols-outlined text-base font-bold">check</span>
                 </button>
                 <!-- Botón Eliminar -->
@@ -353,12 +364,15 @@
         containerOperativos.innerHTML = '<p class="text-xs text-zinc-400 italic text-center py-4">No hay vehículos operativos registrados en esta fecha.</p>';
       } else {
         registrosOperativos.forEach((reg, idx) => {
+          const obsHtml = reg.observacion ? `<p class="text-xs text-zinc-600 bg-zinc-100 p-1.5 rounded-lg border border-zinc-200 mt-1.5 flex items-start gap-1"><span class="material-symbols-outlined text-sm shrink-0">info</span> <span><strong>Obs:</strong> ${reg.observacion}</span></p>` : '';
+
           containerOperativos.innerHTML += `
-            <div class="p-3 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-center gap-2 shadow-sm hover:bg-white transition">
-              <div class="text-xs sm:text-sm">
+            <div class="p-3 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
+              <div class="text-xs sm:text-sm flex-1">
                 <p class="font-bold text-zinc-800">${idx + 1}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code></p>
+                ${obsHtml}
               </div>
-              <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1.5 transition flex items-center justify-center" title="Eliminar">
+              <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1.5 transition flex items-center justify-center shrink-0" title="Eliminar">
                 <span class="material-symbols-outlined text-base">delete</span>
               </button>
             </div>
@@ -371,10 +385,11 @@
     }
 
     // Funciones del Modal de Edición
-    function abrirModalEditar(id, vehiculo, placa) {
+    function abrirModalEditar(id, vehiculo, placa, observacion) {
       document.getElementById('editId').value = id;
       document.getElementById('editVehiculo').value = vehiculo;
       document.getElementById('editPlaca').value = placa;
+      document.getElementById('editObservacion').value = observacion || '';
       document.getElementById('modalEditar').classList.remove('hidden');
     }
 
@@ -386,15 +401,16 @@
       const id = document.getElementById('editId').value;
       const vehiculo = document.getElementById('editVehiculo').value.trim();
       const placa = document.getElementById('editPlaca').value.trim().toUpperCase();
+      const observacion = document.getElementById('editObservacion').value.trim();
 
       if (!placa || !vehiculo) {
-        alert('Por favor, completa todos los campos.');
+        alert('Por favor, completa los campos requeridos (Vehículo y Placa).');
         return;
       }
 
       const { error } = await db
         .from('registros_flota')
-        .update({ vehiculo, placa })
+        .update({ vehiculo, placa, observacion })
         .eq('id', id);
 
       if (error) {
@@ -411,6 +427,7 @@
       const estado = document.getElementById('estado').value;
       const vehiculo = document.getElementById('vehiculo').value.trim() || '[Sin especificar]';
       const placa = document.getElementById('placa').value.trim().toUpperCase();
+      const observacion = document.getElementById('observacion').value.trim();
       const fecha = document.getElementById('fechaFormulario').value;
 
       if (!placa) {
@@ -420,7 +437,7 @@
 
       const { error } = await db
         .from('registros_flota')
-        .insert([{ fecha, estado, vehiculo, placa }]);
+        .insert([{ fecha, estado, vehiculo, placa, observacion }]);
 
       if (error) {
         alert('Error al guardar en Supabase: ' + error.message);
@@ -429,6 +446,7 @@
 
       document.getElementById('vehiculo').value = '';
       document.getElementById('placa').value = '';
+      document.getElementById('observacion').value = '';
       document.getElementById('fechaFiltro').value = fecha;
       cambiarPestana('registro');
     }
@@ -496,9 +514,12 @@
       for (const [fecha, items] of Object.entries(agrupadosPorFecha)) {
         const [y, m, d] = fecha.split('-');
         let htmlItems = items.map((i, idx) => `
-          <div class="p-2.5 bg-zinc-50 border border-zinc-200/80 rounded-lg flex justify-between items-center text-xs">
-            <span><strong>${idx + 1}.</strong> ${i.vehiculo} — Placa: <code class="font-bold font-mono">${i.placa}</code></span>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.estado === 'OPERATIVO' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${i.estado}</span>
+          <div class="p-2.5 bg-zinc-50 border border-zinc-200/80 rounded-lg flex flex-col gap-1 text-xs">
+            <div class="flex justify-between items-center">
+              <span><strong>${idx + 1}.</strong> ${i.vehiculo} — Placa: <code class="font-bold font-mono">${i.placa}</code></span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.estado === 'OPERATIVO' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${i.estado}</span>
+            </div>
+            ${i.observacion ? `<p class="text-[11px] text-zinc-500 italic">Obs: ${i.observacion}</p>` : ''}
           </div>
         `).join('');
 
@@ -521,12 +542,14 @@
 
       let texto = `VEHICULOS EN PATIO (PENDIENTES - ${fechaFormateada}):\n\n`;
       registrosPatioPendientes.forEach((r, idx) => {
-        texto += `${idx + 1}. ${r.vehiculo} — Placa: ${r.placa}\n`;
+        const obs = r.observacion ? ` [Obs: ${r.observacion}]` : '';
+        texto += `${idx + 1}. ${r.vehiculo} — Placa: ${r.placa}${obs}\n`;
       });
 
       texto += `\nVEHICULOS OPERATIVOS (${fechaFormateada}):\n\n`;
       registrosOperativos.forEach((r, idx) => {
-        texto += `${idx + 1}. ${r.vehiculo} — Placa: ${r.placa}\n`;
+        const obs = r.observacion ? ` [Obs: ${r.observacion}]` : '';
+        texto += `${idx + 1}. ${r.vehiculo} — Placa: ${r.placa}${obs}\n`;
       });
 
       navigator.clipboard.writeText(texto);
