@@ -89,8 +89,8 @@
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Observación / Falla</label>
-          <input type="text" id="observacion" placeholder="Ej. Cambio de cauchos traseros, falla en alternador, mantenimiento preventivo" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition">
+          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Observación / Falla / Detalle</label>
+          <input type="text" id="detalle" placeholder="Ej. Cambio de cauchos traseros, falla en alternador, mantenimiento preventivo" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition">
         </div>
 
         <button onclick="agregarRegistro()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
@@ -189,8 +189,8 @@
           <input type="text" id="editPlaca" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500 uppercase">
         </div>
         <div>
-          <label class="text-xs font-medium text-zinc-500 uppercase">Observación / Falla</label>
-          <input type="text" id="editObservacion" placeholder="Detalle de la falla o motivo" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500">
+          <label class="text-xs font-medium text-zinc-500 uppercase">Observación / Falla / Detalle</label>
+          <input type="text" id="editDetalle" placeholder="Detalle de la falla o motivo" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500">
         </div>
       </div>
 
@@ -217,7 +217,7 @@
       
       <div>
         <label class="text-xs font-medium text-zinc-500 uppercase">Observación / Nota Final</label>
-        <input type="text" id="observacionAlPasoOperativo" placeholder="Mantiene la observación actual o ingresa una nueva" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 mt-1">
+        <input type="text" id="detalleAlPasoOperativo" placeholder="Mantiene el detalle actual o ingresa uno nuevo" class="w-full border border-zinc-300 p-2.5 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 mt-1">
       </div>
 
       <div class="flex justify-end gap-3 pt-2">
@@ -300,7 +300,7 @@
         .eq('fecha', fechaSeleccionada)
         .order('created_at', { ascending: true });
 
-      // 2. Cargar TODOS los vehículos en PATIO cuya fecha de ingreso sea menor o igual a la fecha consultada (se arrastran automáticamente manteniendo su observacion)
+      // 2. Cargar VEHÍCULOS EN PATIO cuya fecha de ingreso sea menor o igual a la fecha consultada
       const { data: dataPatio, error: errPatio } = await db
         .from('registros_flota')
         .select('*')
@@ -309,7 +309,7 @@
         .order('fecha', { ascending: true });
 
       if (errOp || errPatio) {
-        console.error('Error al consultar Supabase');
+        console.error('Error al consultar Supabase', errOp || errPatio);
         return;
       }
 
@@ -336,23 +336,24 @@
           const fechaIngreso = new Date(reg.fecha + 'T00:00:00');
           const difMs = fechaRef - fechaIngreso;
           const diasPatio = Math.floor(difMs / (1000 * 60 * 60 * 24)) + 1;
+          const nombreVehiculo = reg.vehiculo || reg.tipo_vehiculo || '[Sin especificar]';
           
-          const obsHtml = reg.observacion 
-            ? `<p class="text-xs text-amber-900 bg-amber-50 p-1.5 rounded-lg border border-amber-200 mt-1.5 flex items-start gap-1"><span class="material-symbols-outlined text-sm shrink-0">info</span> <span><strong>Obs:</strong> ${reg.observacion}</span></p>` 
+          const obsHtml = reg.detalle 
+            ? `<p class="text-xs text-amber-900 bg-amber-50 p-1.5 rounded-lg border border-amber-200 mt-1.5 flex items-start gap-1"><span class="material-symbols-outlined text-sm shrink-0">info</span> <span><strong>Obs:</strong> ${reg.detalle}</span></p>` 
             : `<p class="text-xs text-zinc-400 italic mt-1 font-light">Sin observación registrada.</p>`;
 
           containerPatio.innerHTML += `
             <div class="p-3 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
               <div class="text-xs sm:text-sm flex-1">
-                <p class="font-bold text-zinc-800">${idx + 1}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code> 
+                <p class="font-bold text-zinc-800">${idx + 1}. ${nombreVehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code> 
                 <span class="bg-amber-200/80 text-amber-900 font-bold px-2 py-0.5 rounded text-[11px] ml-1">⏱️ ${diasPatio} ${diasPatio === 1 ? 'día' : 'días'}</span></p>
                 ${obsHtml}
               </div>
               <div class="flex items-center gap-1 shrink-0">
-                <button onclick="abrirModalEditar('${reg.id}', '${reg.vehiculo.replace(/'/g, "\\'")}', '${reg.placa}', '${(reg.observacion || '').replace(/'/g, "\\'")}')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 p-1.5 rounded-lg transition flex items-center justify-center" title="Editar Registro">
+                <button onclick="abrirModalEditar('${reg.id}', '${nombreVehiculo.replace(/'/g, "\\'")}', '${reg.placa}', '${(reg.detalle || '').replace(/'/g, "\\'")}')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 p-1.5 rounded-lg transition flex items-center justify-center" title="Editar Registro">
                   <span class="material-symbols-outlined text-base">edit</span>
                 </button>
-                <button onclick="abrirModalOperativo('${reg.id}', '${reg.vehiculo.replace(/'/g, "\\'")}', '${reg.placa}', '${(reg.observacion || '').replace(/'/g, "\\'")}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 p-1.5 rounded-lg transition flex items-center justify-center" title="Marcar como Operativo">
+                <button onclick="abrirModalOperativo('${reg.id}', '${nombreVehiculo.replace(/'/g, "\\'")}', '${reg.placa}', '${(reg.detalle || '').replace(/'/g, "\\'")}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 p-1.5 rounded-lg transition flex items-center justify-center" title="Marcar como Operativo">
                   <span class="material-symbols-outlined text-base font-bold">check</span>
                 </button>
                 <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1.5 transition flex items-center justify-center" title="Eliminar">
@@ -369,18 +370,19 @@
         containerOperativos.innerHTML = '<p class="text-xs text-zinc-400 italic text-center py-4">No hay vehículos operativos registrados en esta fecha.</p>';
       } else {
         registrosOperativos.forEach((reg, idx) => {
-          const obsHtml = reg.observacion 
-            ? `<p class="text-xs text-emerald-900 bg-emerald-50/80 p-1.5 rounded-lg border border-emerald-200/80 mt-1.5 flex items-start gap-1"><span class="material-symbols-outlined text-sm shrink-0">info</span> <span><strong>Obs:</strong> ${reg.observacion}</span></p>` 
+          const nombreVehiculo = reg.vehiculo || reg.tipo_vehiculo || '[Sin especificar]';
+          const obsHtml = reg.detalle 
+            ? `<p class="text-xs text-emerald-900 bg-emerald-50/80 p-1.5 rounded-lg border border-emerald-200/80 mt-1.5 flex items-start gap-1"><span class="material-symbols-outlined text-sm shrink-0">info</span> <span><strong>Obs:</strong> ${reg.detalle}</span></p>` 
             : `<p class="text-xs text-zinc-400 italic mt-1 font-light">Sin observación registrada.</p>`;
 
           containerOperativos.innerHTML += `
             <div class="p-3 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
               <div class="text-xs sm:text-sm flex-1">
-                <p class="font-bold text-zinc-800">${idx + 1}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code></p>
+                <p class="font-bold text-zinc-800">${idx + 1}. ${nombreVehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code></p>
                 ${obsHtml}
               </div>
               <div class="flex items-center gap-1 shrink-0">
-                <button onclick="abrirModalEditar('${reg.id}', '${reg.vehiculo.replace(/'/g, "\\'")}', '${reg.placa}', '${(reg.observacion || '').replace(/'/g, "\\'")}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 p-1.5 rounded-lg transition flex items-center justify-center" title="Editar Registro">
+                <button onclick="abrirModalEditar('${reg.id}', '${nombreVehiculo.replace(/'/g, "\\'")}', '${reg.placa}', '${(reg.detalle || '').replace(/'/g, "\\'")}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 p-1.5 rounded-lg transition flex items-center justify-center" title="Editar Registro">
                   <span class="material-symbols-outlined text-base">edit</span>
                 </button>
                 <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1.5 transition flex items-center justify-center shrink-0" title="Eliminar">
@@ -397,11 +399,11 @@
     }
 
     // Funciones del Modal de Edición
-    function abrirModalEditar(id, vehiculo, placa, observacion) {
+    function abrirModalEditar(id, vehiculo, placa, detalle) {
       document.getElementById('editId').value = id;
       document.getElementById('editVehiculo').value = vehiculo;
       document.getElementById('editPlaca').value = placa;
-      document.getElementById('editObservacion').value = observacion || '';
+      document.getElementById('editDetalle').value = detalle || '';
       document.getElementById('modalEditar').classList.remove('hidden');
     }
 
@@ -413,7 +415,7 @@
       const id = document.getElementById('editId').value;
       const vehiculo = document.getElementById('editVehiculo').value.trim();
       const placa = document.getElementById('editPlaca').value.trim().toUpperCase();
-      const observacion = document.getElementById('editObservacion').value.trim();
+      const detalle = document.getElementById('editDetalle').value.trim();
 
       if (!placa || !vehiculo) {
         alert('Por favor, completa los campos requeridos (Vehículo y Placa).');
@@ -422,7 +424,7 @@
 
       const { error } = await db
         .from('registros_flota')
-        .update({ vehiculo, placa, observacion })
+        .update({ vehiculo, tipo_vehiculo: vehiculo, placa, detalle })
         .eq('id', id);
 
       if (error) {
@@ -439,7 +441,7 @@
       const estado = document.getElementById('estado').value;
       const vehiculo = document.getElementById('vehiculo').value.trim() || '[Sin especificar]';
       const placa = document.getElementById('placa').value.trim().toUpperCase();
-      const observacion = document.getElementById('observacion').value.trim();
+      const detalle = document.getElementById('detalle').value.trim();
       const fecha = document.getElementById('fechaFormulario').value;
 
       if (!placa) {
@@ -449,7 +451,7 @@
 
       const { error } = await db
         .from('registros_flota')
-        .insert([{ fecha, estado, vehiculo, placa, observacion }]);
+        .insert([{ fecha, estado, vehiculo, tipo_vehiculo: vehiculo, placa, detalle }]);
 
       if (error) {
         alert('Error al guardar en Supabase: ' + error.message);
@@ -458,17 +460,17 @@
 
       document.getElementById('vehiculo').value = '';
       document.getElementById('placa').value = '';
-      document.getElementById('observacion').value = '';
+      document.getElementById('detalle').value = '';
       document.getElementById('fechaFiltro').value = fecha;
       cambiarPestana('registro');
     }
 
-    function abrirModalOperativo(id, vehiculo, placa, observacionActual) {
+    function abrirModalOperativo(id, vehiculo, placa, detalleActual) {
       idSeleccionadoParaOperativo = id;
       document.getElementById('modalMensajeTexto').innerHTML = `
         ¿Deseas pasar el vehículo <strong>${vehiculo}</strong> con placa <code class="bg-zinc-100 px-1 py-0.5 rounded font-mono font-bold">${placa}</code> a estado <strong class="text-emerald-700">OPERATIVO</strong>?
       `;
-      document.getElementById('observacionAlPasoOperativo').value = observacionActual || '';
+      document.getElementById('detalleAlPasoOperativo').value = detalleActual || '';
       document.getElementById('modalOperativo').classList.remove('hidden');
     }
 
@@ -480,14 +482,14 @@
     async function confirmarPasoAOperativo() {
       if (!idSeleccionadoParaOperativo) return;
       const fechaSeleccionada = document.getElementById('fechaFiltro').value;
-      const nuevaObservacion = document.getElementById('observacionAlPasoOperativo').value.trim();
+      const nuevoDetalle = document.getElementById('detalleAlPasoOperativo').value.trim();
 
       const { error } = await db
         .from('registros_flota')
         .update({ 
           estado: 'OPERATIVO', 
           fecha: fechaSeleccionada,
-          observacion: nuevaObservacion 
+          detalle: nuevoDetalle 
         })
         .eq('id', idSeleccionadoParaOperativo);
 
@@ -531,15 +533,18 @@
       contenedor.innerHTML = '';
       for (const [fecha, items] of Object.entries(agrupadosPorFecha)) {
         const [y, m, d] = fecha.split('-');
-        let htmlItems = items.map((i, idx) => `
-          <div class="p-2.5 bg-zinc-50 border border-zinc-200/80 rounded-lg flex flex-col gap-1 text-xs">
-            <div class="flex justify-between items-center">
-              <span><strong>${idx + 1}.</strong> ${i.vehiculo} — Placa: <code class="font-bold font-mono">${i.placa}</code></span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.estado === 'OPERATIVO' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${i.estado}</span>
+        let htmlItems = items.map((i, idx) => {
+          const nombreVehiculo = i.vehiculo || i.tipo_vehiculo || '[Sin especificar]';
+          return `
+            <div class="p-2.5 bg-zinc-50 border border-zinc-200/80 rounded-lg flex flex-col gap-1 text-xs">
+              <div class="flex justify-between items-center">
+                <span><strong>${idx + 1}.</strong> ${nombreVehiculo} — Placa: <code class="font-bold font-mono">${i.placa}</code></span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.estado === 'OPERATIVO' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${i.estado}</span>
+              </div>
+              ${i.detalle ? `<p class="text-[11px] text-zinc-600 italic">Obs: ${i.detalle}</p>` : ''}
             </div>
-            ${i.observacion ? `<p class="text-[11px] text-zinc-600 italic">Obs: ${i.observacion}</p>` : ''}
-          </div>
-        `).join('');
+          `;
+        }).join('');
 
         contenedor.innerHTML += `
           <div class="border border-zinc-200 rounded-xl p-4 bg-white space-y-2">
@@ -560,14 +565,16 @@
 
       let texto = `VEHICULOS EN PATIO (PENDIENTES - ${fechaFormateada}):\n\n`;
       registrosPatioPendientes.forEach((r, idx) => {
-        const obs = r.observacion ? ` [Obs: ${r.observacion}]` : '';
-        texto += `${idx + 1}. ${r.vehiculo} — Placa: ${r.placa}${obs}\n`;
+        const nombreVehiculo = r.vehiculo || r.tipo_vehiculo || '[Sin especificar]';
+        const obs = r.detalle ? ` [Obs: ${r.detalle}]` : '';
+        texto += `${idx + 1}. ${nombreVehiculo} — Placa: ${r.placa}${obs}\n`;
       });
 
       texto += `\nVEHICULOS OPERATIVOS (${fechaFormateada}):\n\n`;
       registrosOperativos.forEach((r, idx) => {
-        const obs = r.observacion ? ` [Obs: ${r.observacion}]` : '';
-        texto += `${idx + 1}. ${r.vehiculo} — Placa: ${r.placa}${obs}\n`;
+        const nombreVehiculo = r.vehiculo || r.tipo_vehiculo || '[Sin especificar]';
+        const obs = r.detalle ? ` [Obs: ${r.detalle}]` : '';
+        texto += `${idx + 1}. ${nombreVehiculo} — Placa: ${r.placa}${obs}\n`;
       });
 
       navigator.clipboard.writeText(texto);
