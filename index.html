@@ -14,6 +14,22 @@
 
   <style>
     body { font-family: 'Roboto', sans-serif; }
+    
+    /* Scrollbar personalizado estético para los contenedores */
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #f4f4f5;
+      border-radius: 8px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #d4d4d8;
+      border-radius: 8px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #a1a1aa;
+    }
   </style>
 </head>
 <body class="bg-zinc-100 text-zinc-800 min-h-screen p-3 sm:p-6 antialiased">
@@ -29,34 +45,35 @@
         </div>
       </div>
       
-      <nav class="flex bg-zinc-700/60 p-1 rounded-xl border border-zinc-600/50 w-full sm:w-auto">
-        <button id="tabRegistro" onclick="cambiarPestana('registro')" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-sm">
-          <span class="material-symbols-outlined text-base">edit_note</span>
+      <nav class="flex bg-zinc-700/60 p-1 rounded-xl border border-zinc-600/50 w-full sm:w-auto overflow-x-auto">
+        <button id="tabNuevo" onclick="cambiarPestana('nuevo')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-sm whitespace-nowrap">
+          <span class="material-symbols-outlined text-base">add_box</span>
+          Registrar
+        </button>
+        <button id="tabRegistro" onclick="cambiarPestana('registro')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+          <span class="material-symbols-outlined text-base">fact_check</span>
           Registro Diario
         </button>
-        <button id="tabHistorial" onclick="cambiarPestana('historial')" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5">
+        <button id="tabHistorial" onclick="cambiarPestana('historial')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5 whitespace-nowrap">
           <span class="material-symbols-outlined text-base">history</span>
           Historial
         </button>
       </nav>
     </header>
 
-    <div id="vistaRegistro" class="space-y-5">
-      
-      <div class="flex justify-between items-center bg-white p-3.5 px-5 rounded-2xl border border-zinc-200/80 shadow-sm">
-        <span class="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1">
-          <span class="material-symbols-outlined text-emerald-600 text-sm">calendar_today</span> Fecha del Reporte:
-        </span>
-        <input type="date" id="fechaFiltro" class="bg-zinc-100 text-zinc-800 text-sm font-bold p-1.5 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-      </div>
-
+    <div id="vistaNuevo" class="space-y-5">
       <section class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-zinc-200/80 space-y-4">
         <div class="flex items-center gap-2 border-b border-zinc-100 pb-3">
           <span class="material-symbols-outlined text-emerald-600">add_task</span>
-          <h2 class="text-base sm:text-lg font-bold text-zinc-700">Registrar Unidad</h2>
+          <h2 class="text-base sm:text-lg font-bold text-zinc-700">Registrar Nueva Unidad</h2>
         </div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Fecha del Registro</label>
+            <input type="date" id="fechaFormulario" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+          </div>
+
           <div class="flex flex-col gap-1.5">
             <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Estado de la Unidad</label>
             <select id="estado" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" onchange="toggleCampos()">
@@ -75,7 +92,7 @@
             <input type="text" id="placa" placeholder="Ej. A12EB3G" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 uppercase outline-none transition">
           </div>
 
-          <div class="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-3">
+          <div class="flex flex-col gap-1.5 sm:col-span-2">
             <label id="lblDetalle" class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Observación / Nivel / Porcentaje</label>
             <input type="text" id="detalle" placeholder="Trabajos ejecutados u observaciones" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
           </div>
@@ -86,6 +103,16 @@
           Añadir al Registro
         </button>
       </section>
+    </div>
+
+    <div id="vistaRegistro" class="hidden space-y-5">
+      
+      <div class="flex justify-between items-center bg-white p-3.5 px-5 rounded-2xl border border-zinc-200/80 shadow-sm">
+        <span class="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1">
+          <span class="material-symbols-outlined text-emerald-600 text-sm">calendar_today</span> Consultar Fecha:
+        </span>
+        <input type="date" id="fechaFiltro" class="bg-zinc-100 text-zinc-800 text-sm font-bold p-1.5 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
         
@@ -98,7 +125,7 @@
               </h2>
               <span id="cantPatio" class="text-xs bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full">0</span>
             </div>
-            <div id="listaPatio" class="space-y-3">
+            <div id="listaPatio" class="space-y-3 max-h-[380px] overflow-y-auto pr-1.5 custom-scroll">
               </div>
           </div>
         </section>
@@ -112,7 +139,7 @@
               </h2>
               <span id="cantOperativos" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">0</span>
             </div>
-            <div id="listaOperativos" class="space-y-3">
+            <div id="listaOperativos" class="space-y-3 max-h-[380px] overflow-y-auto pr-1.5 custom-scroll">
               </div>
           </div>
         </section>
@@ -146,7 +173,7 @@
   </div>
 
   <div id="modalOperativo" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
-    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 border border-zinc-100 transform transition-all scale-100">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 border border-zinc-100">
       
       <div class="flex items-center gap-3 text-emerald-600">
         <div class="p-2.5 bg-emerald-100 rounded-xl">
@@ -177,7 +204,7 @@
 
   <script>
     // ==========================================
-    // CONFIGURACIÓN DE SUPABASE DE PRUEBA
+    // CONFIGURACIÓN DE SUPABASE
     // ==========================================
     const SUPABASE_URL = 'https://rxpbmlpvfurzmevithdt.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_XbWAD1kY_Ehc9FdhhAYxCw_eE7LVxVV';
@@ -191,7 +218,9 @@
     let idSeleccionadoParaOperativo = null;
 
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('fechaFiltro').valueAsDate = new Date();
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById('fechaFiltro').value = hoy;
+      document.getElementById('fechaFormulario').value = hoy;
       cargarRegistrosDesdeDB();
     });
 
@@ -199,21 +228,35 @@
 
     // Gestor de Pestañas
     function cambiarPestana(pestana) {
+      const vNuevo = document.getElementById('vistaNuevo');
       const vRegistro = document.getElementById('vistaRegistro');
       const vHistorial = document.getElementById('vistaHistorial');
+      
+      const btnNuevo = document.getElementById('tabNuevo');
       const btnReg = document.getElementById('tabRegistro');
       const btnHist = document.getElementById('tabHistorial');
 
-      if (pestana === 'registro') {
+      const activeClass = "flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-sm whitespace-nowrap";
+      const inactiveClass = "flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5 whitespace-nowrap";
+
+      vNuevo.classList.add('hidden');
+      vRegistro.classList.add('hidden');
+      vHistorial.classList.add('hidden');
+
+      btnNuevo.className = inactiveClass;
+      btnReg.className = inactiveClass;
+      btnHist.className = inactiveClass;
+
+      if (pestana === 'nuevo') {
+        vNuevo.classList.remove('hidden');
+        btnNuevo.className = activeClass;
+      } else if (pestana === 'registro') {
         vRegistro.classList.remove('hidden');
-        vHistorial.classList.add('hidden');
-        btnReg.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-sm";
-        btnHist.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5";
+        btnReg.className = activeClass;
+        cargarRegistrosDesdeDB();
       } else {
-        vRegistro.classList.add('hidden');
         vHistorial.classList.remove('hidden');
-        btnHist.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-sm";
-        btnReg.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5";
+        btnHist.className = activeClass;
         cargarHistorialCompleto();
       }
     }
@@ -251,7 +294,6 @@
       renderizarListas();
     }
 
-    // Calcula desde la primera fecha ingresada en patio
     async function calcularDiasEnPatio(fechaReferenciaStr) {
       mapaDiasPatio = {};
       const patioPlacas = registros.filter(r => r.estado === 'PATIO').map(r => r.placa);
@@ -300,7 +342,7 @@
       const vehiculo = document.getElementById('vehiculo').value.trim() || '[Sin especificar]';
       const placa = document.getElementById('placa').value.trim().toUpperCase();
       const detalle = document.getElementById('detalle').value.trim() || '[Sin especificar]';
-      const fecha = document.getElementById('fechaFiltro').value;
+      const fecha = document.getElementById('fechaFormulario').value;
 
       if (!placa) {
         alert('Por favor ingresa la placa del vehículo.');
@@ -321,7 +363,9 @@
       document.getElementById('placa').value = '';
       document.getElementById('detalle').value = '';
 
-      cargarRegistrosDesdeDB();
+      // Actualizar la fecha del filtro de la vista con la fecha recién registrada y pasar a la pestaña de registro
+      document.getElementById('fechaFiltro').value = fecha;
+      cambiarPestana('registro');
     }
 
     // ==========================================
@@ -392,11 +436,19 @@
       let opCount = 0;
       let patioCount = 0;
 
+      if (registros.length === 0) {
+        containerOperativos.innerHTML = '<p class="text-xs text-zinc-400 italic text-center py-4">No hay vehículos operativos en esta fecha.</p>';
+        containerPatio.innerHTML = '<p class="text-xs text-zinc-400 italic text-center py-4">No hay vehículos en patio en esta fecha.</p>';
+        document.getElementById('cantOperativos').innerText = 0;
+        document.getElementById('cantPatio').innerText = 0;
+        return;
+      }
+
       registros.forEach((reg) => {
         if (reg.estado === 'OPERATIVO') {
           opCount++;
           containerOperativos.innerHTML += `
-            <div class="p-3.5 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
+            <div class="p-3 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
               <div class="space-y-1 text-xs sm:text-sm">
                 <p class="font-bold text-zinc-800">${opCount}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code></p>
                 <p class="text-zinc-600">Detalles realizados: <span class="text-zinc-800 font-medium">${reg.detalle}</span></p>
@@ -412,7 +464,7 @@
           const badgeDias = `<span class="bg-amber-200/80 text-amber-900 font-bold px-2 py-0.5 rounded text-[11px] ml-1">⏱️ ${datosPatio.dias} ${datosPatio.dias === 1 ? 'día' : 'días'} en patio</span>`;
 
           containerPatio.innerHTML += `
-            <div class="p-3.5 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
+            <div class="p-3 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
               <div class="space-y-1 text-xs sm:text-sm">
                 <p class="font-bold text-zinc-800">${patioCount}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code> ${badgeDias}</p>
                 <p class="text-amber-900 font-medium">Observación: <span class="text-zinc-800 font-normal">${reg.detalle}</span></p>
@@ -429,6 +481,9 @@
           `;
         }
       });
+
+      if (opCount === 0) containerOperativos.innerHTML = '<p class="text-xs text-zinc-400 italic text-center py-4">No hay vehículos operativos en esta fecha.</p>';
+      if (patioCount === 0) containerPatio.innerHTML = '<p class="text-xs text-zinc-400 italic text-center py-4">No hay vehículos en patio en esta fecha.</p>';
 
       document.getElementById('cantOperativos').innerText = opCount;
       document.getElementById('cantPatio').innerText = patioCount;
@@ -496,7 +551,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
               <div class="space-y-2">
                 <p class="text-xs font-bold text-amber-800 flex items-center gap-1">🟡 En Patio (${patios.length})</p>
-                <div class="space-y-1.5">
+                <div class="space-y-1.5 max-h-60 overflow-y-auto pr-1 custom-scroll">
         `;
 
         if (patios.length === 0) {
@@ -518,7 +573,7 @@
 
               <div class="space-y-2">
                 <p class="text-xs font-bold text-emerald-800 flex items-center gap-1">🟢 Operativos (${ops.length})</p>
-                <div class="space-y-1.5">
+                <div class="space-y-1.5 max-h-60 overflow-y-auto pr-1 custom-scroll">
         `;
 
         if (ops.length === 0) {
