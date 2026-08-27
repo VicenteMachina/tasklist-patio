@@ -60,8 +60,8 @@
           <div class="flex flex-col gap-1.5">
             <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Estado de la Unidad</label>
             <select id="estado" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" onchange="toggleCampos()">
+              <option value="PATIO" selected>🟡 Vehículo en Patio</option>
               <option value="OPERATIVO">🟢 Vehículo Operativo</option>
-              <option value="PATIO">🟡 Vehículo en Patio</option>
             </select>
           </div>
 
@@ -77,11 +77,11 @@
 
           <div class="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-1">
             <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Chófer Asignado</label>
-            <input type="text" id="chofer" placeholder="Nombre del chófer" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+            <input type="text" id="chofer" placeholder="Nombre del chófer" disabled class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-200/50 cursor-not-allowed focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
           </div>
 
           <div class="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-2">
-            <label id="lblDetalle" class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Detalles Realizados</label>
+            <label id="lblDetalle" class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Observación / Nivel / Porcentaje</label>
             <input type="text" id="detalle" placeholder="Trabajos ejecutados u observaciones" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
           </div>
         </div>
@@ -94,20 +94,6 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
         
-        <section class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-emerald-500 flex flex-col justify-between">
-          <div>
-            <div class="flex justify-between items-center mb-4 border-b border-zinc-100 pb-3">
-              <h2 class="font-bold text-emerald-800 text-sm sm:text-base flex items-center gap-2">
-                <span class="material-symbols-outlined text-emerald-600">check_circle</span>
-                VEHÍCULOS OPERATIVOS
-              </h2>
-              <span id="cantOperativos" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">0</span>
-            </div>
-            <div id="listaOperativos" class="space-y-3">
-              </div>
-          </div>
-        </section>
-
         <section class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-amber-500 flex flex-col justify-between">
           <div>
             <div class="flex justify-between items-center mb-4 border-b border-zinc-100 pb-3">
@@ -118,6 +104,20 @@
               <span id="cantPatio" class="text-xs bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full">0</span>
             </div>
             <div id="listaPatio" class="space-y-3">
+              </div>
+          </div>
+        </section>
+
+        <section class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-emerald-500 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-4 border-b border-zinc-100 pb-3">
+              <h2 class="font-bold text-emerald-800 text-sm sm:text-base flex items-center gap-2">
+                <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+                VEHÍCULOS OPERATIVOS
+              </h2>
+              <span id="cantOperativos" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">0</span>
+            </div>
+            <div id="listaOperativos" class="space-y-3">
               </div>
           </div>
         </section>
@@ -154,7 +154,7 @@
     // ==========================================
     // CONFIGURACIÓN DE SUPABASE
     // ==========================================
-    const SUPABASE_URL = 'https://rxpbmlpvfurzmevithdt.supabase.co'; // <--- Pon tu URL real de Supabase
+    const SUPABASE_URL = 'https://rxpbmlpvfurzmevithdt.supabase.co'; // <--- Pon tu URL real
     const SUPABASE_KEY = 'sb_publishable_XbWAD1kY_Ehc9FdhhAYxCw_eE7LVxVV';                   // <--- Pon tu Anon Key real
     
     const { createClient } = window.supabase;
@@ -162,6 +162,7 @@
 
     let registros = [];
     let historialGlobal = {};
+    let mapaDiasPatio = {}; // Almacena el cálculo de días en patio por placa
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('fechaFiltro').valueAsDate = new Date();
@@ -226,7 +227,53 @@
       }
 
       registros = data || [];
+      await calcularDiasEnPatio(fechaSeleccionada);
       renderizarListas();
+    }
+
+    // Calcula desde la primera fecha ingresada en patio
+    async function calcularDiasEnPatio(fechaReferenciaStr) {
+      mapaDiasPatio = {};
+      const patioPlacas = registros.filter(r => r.estado === 'PATIO').map(r => r.placa);
+
+      if (patioPlacas.length === 0) return;
+
+      const { data, error } = await db
+        .from('registros_flota')
+        .select('placa, fecha, estado')
+        .in('placa', patioPlacas)
+        .lte('fecha', fechaReferenciaStr)
+        .order('fecha', { ascending: true });
+
+      if (error) {
+        console.error('Error calculando días en patio:', error.message);
+        return;
+      }
+
+      const fechaRef = new Date(fechaReferenciaStr + 'T00:00:00');
+
+      patioPlacas.forEach(placa => {
+        const historialPlaca = data.filter(d => d.placa === placa);
+        let primeraFechaPatio = null;
+
+        // Rastrea hacia atrás la fecha continua inicial en patio
+        for (let i = historialPlaca.length - 1; i >= 0; i--) {
+          if (historialPlaca[i].estado === 'PATIO') {
+            primeraFechaPatio = historialPlaca[i].fecha;
+          } else {
+            break;
+          }
+        }
+
+        if (primeraFechaPatio) {
+          const fechaInicio = new Date(primeraFechaPatio + 'T00:00:00');
+          const diferenciaMs = fechaRef - fechaInicio;
+          const dias = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24)) + 1;
+          mapaDiasPatio[placa] = { dias, fechaInicio: primeraFechaPatio };
+        } else {
+          mapaDiasPatio[placa] = { dias: 1, fechaInicio: fechaReferenciaStr };
+        }
+      });
     }
 
     async function agregarRegistro() {
@@ -260,7 +307,6 @@
       cargarRegistrosDesdeDB();
     }
 
-    // Mover un vehículo de Patio a Operativo en la base de datos
     async function cambiarAOperativo(id) {
       const choferNuevo = prompt('Ingrese el nombre del chófer asignado:', '________');
       
@@ -281,7 +327,6 @@
       cargarRegistrosDesdeDB();
     }
 
-    // Eliminar por completo el registro de la base de datos
     async function eliminarRegistro(id) {
       if (!confirm('¿Deseas eliminar completamente este registro?')) return;
 
@@ -326,10 +371,13 @@
           `;
         } else {
           patioCount++;
+          const datosPatio = mapaDiasPatio[reg.placa] || { dias: 1 };
+          const badgeDias = `<span class="bg-amber-200/80 text-amber-900 font-bold px-2 py-0.5 rounded text-[11px] ml-1">⏱️ ${datosPatio.dias} ${datosPatio.dias === 1 ? 'día' : 'días'} en patio</span>`;
+
           containerPatio.innerHTML += `
             <div class="p-3.5 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
               <div class="space-y-1 text-xs sm:text-sm">
-                <p class="font-bold text-zinc-800">${patioCount}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code></p>
+                <p class="font-bold text-zinc-800">${patioCount}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code> ${badgeDias}</p>
                 <p class="text-amber-900 font-medium">Observación: <span class="text-zinc-800 font-normal">${reg.detalle}</span></p>
               </div>
               <div class="flex items-center gap-1">
@@ -410,6 +458,28 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
               <div class="space-y-2">
+                <p class="text-xs font-bold text-amber-800 flex items-center gap-1">🟡 En Patio (${patios.length})</p>
+                <div class="space-y-1.5">
+        `;
+
+        if (patios.length === 0) {
+          htmlBloque += `<p class="text-xs text-zinc-400 italic">Sin registros en patio este día.</p>`;
+        } else {
+          patios.forEach((p, idx) => {
+            htmlBloque += `
+              <div class="p-2.5 bg-white border border-zinc-200 rounded-xl text-xs space-y-0.5">
+                <p class="font-bold text-zinc-800">${idx + 1}. ${p.vehiculo} — <code class="bg-zinc-100 px-1 rounded font-bold">${p.placa}</code></p>
+                <p class="text-amber-900 font-medium">Obs: ${p.detalle}</p>
+              </div>
+            `;
+          });
+        }
+
+        htmlBloque += `
+                </div>
+              </div>
+
+              <div class="space-y-2">
                 <p class="text-xs font-bold text-emerald-800 flex items-center gap-1">🟢 Operativos (${ops.length})</p>
                 <div class="space-y-1.5">
         `;
@@ -423,28 +493,6 @@
                 <p class="font-bold text-zinc-800">${idx + 1}. ${o.vehiculo} — <code class="bg-zinc-100 px-1 rounded font-bold">${o.placa}</code></p>
                 <p class="text-zinc-600">Chófer: ${o.chofer}</p>
                 <p class="text-zinc-600">Detalles: ${o.detalle}</p>
-              </div>
-            `;
-          });
-        }
-
-        htmlBloque += `
-                </div>
-              </div>
-
-              <div class="space-y-2">
-                <p class="text-xs font-bold text-amber-800 flex items-center gap-1">🟡 En Patio (${patios.length})</p>
-                <div class="space-y-1.5">
-        `;
-
-        if (patios.length === 0) {
-          htmlBloque += `<p class="text-xs text-zinc-400 italic">Sin registros en patio este día.</p>`;
-        } else {
-          patios.forEach((p, idx) => {
-            htmlBloque += `
-              <div class="p-2.5 bg-white border border-zinc-200 rounded-xl text-xs space-y-0.5">
-                <p class="font-bold text-zinc-800">${idx + 1}. ${p.vehiculo} — <code class="bg-zinc-100 px-1 rounded font-bold">${p.placa}</code></p>
-                <p class="text-amber-900 font-medium">Obs: ${p.detalle}</p>
               </div>
             `;
           });
@@ -478,18 +526,20 @@
       const [year, month, day] = fechaStr.split('-');
       const fechaFormateada = `${day}/${month}/${year}`;
 
-      let texto = `VEHICULOS OPERATIVOS (Fecha: ${fechaFormateada}):\n\n`;
+      let texto = `VEHICULOS EN PATIO (Fecha: ${fechaFormateada}):\n\n`;
+      let countPatio = 1;
+      listaRegistros.filter(r => r.estado === 'PATIO').forEach(r => {
+        const datosPatio = mapaDiasPatio[r.placa];
+        const diasTxt = datosPatio ? ` (${datosPatio.dias} ${datosPatio.dias === 1 ? 'día' : 'días'} en patio)` : '';
+        texto += `${countPatio}. ${r.vehiculo} — Placa: ${r.placa}${diasTxt} — Observación: ${r.detalle}\n\n`;
+        countPatio++;
+      });
+
+      texto += `VEHICULOS OPERATIVOS (Fecha: ${fechaFormateada}):\n\n`;
       let countOp = 1;
       listaRegistros.filter(r => r.estado === 'OPERATIVO').forEach(r => {
         texto += `${countOp}. ${r.vehiculo} — Placa: ${r.placa} — Chófer: ${r.chofer}\n   Detalles realizados: ${r.detalle}\n\n`;
         countOp++;
-      });
-
-      texto += `VEHICULOS EN PATIO (Fecha: ${fechaFormateada}):\n\n`;
-      let countPatio = 1;
-      listaRegistros.filter(r => r.estado === 'PATIO').forEach(r => {
-        texto += `${countPatio}. ${r.vehiculo} — Placa: ${r.placa} — Observación: ${r.detalle}\n\n`;
-        countPatio++;
       });
 
       navigator.clipboard.writeText(texto);
