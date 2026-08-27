@@ -145,12 +145,42 @@
 
   </div>
 
+  <div id="modalOperativo" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 border border-zinc-100 transform transition-all scale-100">
+      
+      <div class="flex items-center gap-3 text-emerald-600">
+        <div class="p-2.5 bg-emerald-100 rounded-xl">
+          <span class="material-symbols-outlined text-2xl">check_circle</span>
+        </div>
+        <div>
+          <h3 class="font-bold text-zinc-800 text-lg">Cambiar a Operativo</h3>
+          <p class="text-xs text-zinc-500">Confirmación de cambio de estado</p>
+        </div>
+      </div>
+
+      <p id="modalMensajeTexto" class="text-sm text-zinc-600">
+        ¿Estás seguro de que deseas marcar esta unidad como <strong class="text-emerald-700">OPERATIVA</strong>?
+      </p>
+
+      <div class="flex justify-end gap-3 pt-2">
+        <button onclick="cerrarModalOperativo()" class="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-xl text-xs transition">
+          Cancelar
+        </button>
+        <button id="btnConfirmarOperativo" onclick="confirmarPasoAOperativo()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-xl text-xs shadow-sm transition flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">check</span>
+          Sí, cambiar estado
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <script>
     // ==========================================
-    // CONFIGURACIÓN DE SUPABASE
+    // CONFIGURACIÓN DE SUPABASE DE PRUEBA
     // ==========================================
-    const SUPABASE_URL = 'https://rxpbmlpvfurzmevithdt.supabase.co'; // <--- Pon tu URL real
-    const SUPABASE_KEY = 'sb_publishable_XbWAD1kY_Ehc9FdhhAYxCw_eE7LVxVV';                   // <--- Pon tu Anon Key real
+    const SUPABASE_URL = 'https://rxpbmlpvfurzmevithdt.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_XbWAD1kY_Ehc9FdhhAYxCw_eE7LVxVV';
     
     const { createClient } = window.supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -158,6 +188,7 @@
     let registros = [];
     let historialGlobal = {};
     let mapaDiasPatio = {};
+    let idSeleccionadoParaOperativo = null;
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('fechaFiltro').valueAsDate = new Date();
@@ -293,11 +324,36 @@
       cargarRegistrosDesdeDB();
     }
 
-    async function cambiarAOperativo(id) {
+    // ==========================================
+    // MODAL & CAMBIO A OPERATIVO
+    // ==========================================
+    function abrirModalOperativo(id, vehiculo, placa) {
+      idSeleccionadoParaOperativo = id;
+      document.getElementById('modalMensajeTexto').innerHTML = `
+        ¿Estás seguro de que deseas pasar el vehículo <strong>${vehiculo}</strong> con placa <code class="bg-zinc-100 px-1 py-0.5 rounded font-mono font-bold">${placa}</code> al estado <strong class="text-emerald-700">OPERATIVO</strong>?
+      `;
+      document.getElementById('modalOperativo').classList.remove('hidden');
+    }
+
+    function cerrarModalOperativo() {
+      idSeleccionadoParaOperativo = null;
+      document.getElementById('modalOperativo').classList.add('hidden');
+    }
+
+    async function confirmarPasoAOperativo() {
+      if (!idSeleccionadoParaOperativo) return;
+
+      const btn = document.getElementById('btnConfirmarOperativo');
+      btn.disabled = true;
+      btn.innerText = 'Guardando...';
+
       const { error } = await db
         .from('registros_flota')
         .update({ estado: 'OPERATIVO' })
-        .eq('id', id);
+        .eq('id', idSeleccionadoParaOperativo);
+
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined text-sm">check</span> Sí, cambiar estado';
 
       if (error) {
         alert('Error al actualizar estado del vehículo');
@@ -305,6 +361,7 @@
         return;
       }
 
+      cerrarModalOperativo();
       cargarRegistrosDesdeDB();
     }
 
@@ -361,7 +418,7 @@
                 <p class="text-amber-900 font-medium">Observación: <span class="text-zinc-800 font-normal">${reg.detalle}</span></p>
               </div>
               <div class="flex items-center gap-1">
-                <button onclick="cambiarAOperativo('${reg.id}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 p-1 rounded-lg transition flex items-center justify-center" title="Pasar a Operativo">
+                <button onclick="abrirModalOperativo('${reg.id}', '${reg.vehiculo}', '${reg.placa}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 p-1 rounded-lg transition flex items-center justify-center" title="Pasar a Operativo">
                   <span class="material-symbols-outlined text-base font-bold">check</span>
                 </button>
                 <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1 transition" title="Eliminar definitivamente">
