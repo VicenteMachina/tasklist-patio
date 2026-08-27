@@ -75,12 +75,7 @@
             <input type="text" id="placa" placeholder="Ej. A12EB3G" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 uppercase outline-none transition">
           </div>
 
-          <div class="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-1">
-            <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Chófer Asignado</label>
-            <input type="text" id="chofer" placeholder="Nombre del chófer" disabled class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-200/50 cursor-not-allowed focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
-          </div>
-
-          <div class="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-2">
+          <div class="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-3">
             <label id="lblDetalle" class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Observación / Nivel / Porcentaje</label>
             <input type="text" id="detalle" placeholder="Trabajos ejecutados u observaciones" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
           </div>
@@ -162,7 +157,7 @@
 
     let registros = [];
     let historialGlobal = {};
-    let mapaDiasPatio = {}; // Almacena el cálculo de días en patio por placa
+    let mapaDiasPatio = {};
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('fechaFiltro').valueAsDate = new Date();
@@ -194,17 +189,11 @@
 
     function toggleCampos() {
       const estado = document.getElementById('estado').value;
-      const campoChofer = document.getElementById('chofer');
       const lblDetalle = document.getElementById('lblDetalle');
 
       if (estado === 'PATIO') {
-        campoChofer.disabled = true;
-        campoChofer.classList.add('bg-zinc-200/50', 'cursor-not-allowed');
-        campoChofer.value = '';
         lblDetalle.innerText = 'Observación / Nivel / Porcentaje';
       } else {
-        campoChofer.disabled = false;
-        campoChofer.classList.remove('bg-zinc-200/50', 'cursor-not-allowed');
         lblDetalle.innerText = 'Detalles Realizados';
       }
     }
@@ -256,7 +245,6 @@
         const historialPlaca = data.filter(d => d.placa === placa);
         let primeraFechaPatio = null;
 
-        // Rastrea hacia atrás la fecha continua inicial en patio
         for (let i = historialPlaca.length - 1; i >= 0; i--) {
           if (historialPlaca[i].estado === 'PATIO') {
             primeraFechaPatio = historialPlaca[i].fecha;
@@ -280,7 +268,6 @@
       const estado = document.getElementById('estado').value;
       const vehiculo = document.getElementById('vehiculo').value.trim() || '[Sin especificar]';
       const placa = document.getElementById('placa').value.trim().toUpperCase();
-      const chofer = document.getElementById('chofer').value.trim() || '________';
       const detalle = document.getElementById('detalle').value.trim() || '[Sin especificar]';
       const fecha = document.getElementById('fechaFiltro').value;
 
@@ -291,7 +278,7 @@
 
       const { error } = await db
         .from('registros_flota')
-        .insert([{ fecha, estado, vehiculo, placa, chofer, detalle }]);
+        .insert([{ fecha, estado, vehiculo, placa, detalle }]);
 
       if (error) {
         alert('Error al guardar en Supabase. Revisa las credenciales o la conexión.');
@@ -301,21 +288,15 @@
 
       document.getElementById('vehiculo').value = '';
       document.getElementById('placa').value = '';
-      document.getElementById('chofer').value = '';
       document.getElementById('detalle').value = '';
 
       cargarRegistrosDesdeDB();
     }
 
     async function cambiarAOperativo(id) {
-      const choferNuevo = prompt('Ingrese el nombre del chófer asignado:', '________');
-      
       const { error } = await db
         .from('registros_flota')
-        .update({ 
-          estado: 'OPERATIVO',
-          chofer: choferNuevo || '________'
-        })
+        .update({ estado: 'OPERATIVO' })
         .eq('id', id);
 
       if (error) {
@@ -361,7 +342,6 @@
             <div class="p-3.5 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
               <div class="space-y-1 text-xs sm:text-sm">
                 <p class="font-bold text-zinc-800">${opCount}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code></p>
-                <p class="text-zinc-600">Chófer: <span class="font-medium text-zinc-700">${reg.chofer}</span></p>
                 <p class="text-zinc-600">Detalles realizados: <span class="text-zinc-800 font-medium">${reg.detalle}</span></p>
               </div>
               <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1 transition" title="Eliminar definitivamente">
@@ -491,7 +471,6 @@
             htmlBloque += `
               <div class="p-2.5 bg-white border border-zinc-200 rounded-xl text-xs space-y-0.5">
                 <p class="font-bold text-zinc-800">${idx + 1}. ${o.vehiculo} — <code class="bg-zinc-100 px-1 rounded font-bold">${o.placa}</code></p>
-                <p class="text-zinc-600">Chófer: ${o.chofer}</p>
                 <p class="text-zinc-600">Detalles: ${o.detalle}</p>
               </div>
             `;
@@ -538,7 +517,7 @@
       texto += `VEHICULOS OPERATIVOS (Fecha: ${fechaFormateada}):\n\n`;
       let countOp = 1;
       listaRegistros.filter(r => r.estado === 'OPERATIVO').forEach(r => {
-        texto += `${countOp}. ${r.vehiculo} — Placa: ${r.placa} — Chófer: ${r.chofer}\n   Detalles realizados: ${r.detalle}\n\n`;
+        texto += `${countOp}. ${r.vehiculo} — Placa: ${r.placa}\n   Detalles realizados: ${r.detalle}\n\n`;
         countOp++;
       });
 
