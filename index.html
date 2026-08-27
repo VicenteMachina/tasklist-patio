@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Flota — Material Style</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Material Symbols e Iconos Google -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+
+  <style>
+    body { font-family: 'Roboto', sans-serif; }
+  </style>
+</head>
+<body class="bg-zinc-100 text-zinc-800 min-h-screen p-3 sm:p-6 antialiased">
+
+  <div class="max-w-5xl mx-auto space-y-5">
+    
+    <!-- Header / App Bar Style Material -->
+    <header class="bg-zinc-800 text-zinc-5 p-4 sm:p-5 rounded-2xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-emerald-400 text-3xl">local_shipping</span>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-100">Control de Flota</h1>
+          <p class="text-xs text-zinc-400">Inspección y estado de unidades en tiempo real</p>
+        </div>
+      </div>
+      
+      <div class="w-full sm:w-auto flex items-center gap-2 bg-zinc-700/60 p-2 rounded-xl border border-zinc-600/50">
+        <span class="material-symbols-outlined text-zinc-300 text-sm pl-1">calendar_today</span>
+        <input type="date" id="fechaFiltro" class="bg-transparent text-zinc-100 text-sm font-medium focus:outline-none w-full sm:w-auto">
+      </div>
+    </header>
+
+    <!-- Tarjeta Formulario de Entrada -->
+    <section class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-zinc-200/80 space-y-4">
+      <div class="flex items-center gap-2 border-b border-zinc-100 pb-3">
+        <span class="material-symbols-outlined text-emerald-600">add_task</span>
+        <h2 class="text-base sm:text-lg font-bold text-zinc-700">Registrar Unidad</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Estado -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Estado de la Unidad</label>
+          <select id="estado" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" onchange="toggleCampos()">
+            <option value="OPERATIVO">🟢 Vehículo Operativo</option>
+            <option value="PATIO">🟡 Vehículo en Patio</option>
+          </select>
+        </div>
+
+        <!-- Tipo de Vehículo -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Tipo de Vehículo</label>
+          <input type="text" id="vehiculo" placeholder="Ej. Mack, NPR, Jac, Batea" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+        </div>
+
+        <!-- Placa -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Placa(s)</label>
+          <input type="text" id="placa" placeholder="Ej. A12EB3G" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 uppercase outline-none transition">
+        </div>
+
+        <!-- Chófer -->
+        <div class="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-1">
+          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Chófer Asignado</label>
+          <input type="text" id="chofer" placeholder="Nombre del chófer" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+        </div>
+
+        <!-- Detalles / Observaciones -->
+        <div class="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-2">
+          <label id="lblDetalle" class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Detalles Realizados</label>
+          <input type="text" id="detalle" placeholder="Trabajos ejecutados u observaciones" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+        </div>
+      </div>
+
+      <button onclick="agregarRegistro()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium py-3 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
+        <span class="material-symbols-outlined text-lg">playlist_add</span>
+        Añadir al Registro
+      </button>
+    </section>
+
+    <!-- Listas de Tareas (Tasklist Visual) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      
+      <!-- Lista Operativos -->
+      <section class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-emerald-500 flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-4 border-b border-zinc-100 pb-3">
+            <h2 class="font-bold text-emerald-800 text-sm sm:text-base flex items-center gap-2">
+              <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+              VEHÍCULOS OPERATIVOS
+            </h2>
+            <span id="cantOperativos" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">0</span>
+          </div>
+          <div id="listaOperativos" class="space-y-3">
+            <!-- Dinámico -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Lista En Patio -->
+      <section class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-amber-500 flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-4 border-b border-zinc-100 pb-3">
+            <h2 class="font-bold text-amber-800 text-sm sm:text-base flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-600">build</span>
+              VEHÍCULOS EN PATIO
+            </h2>
+            <span id="cantPatio" class="text-xs bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full">0</span>
+          </div>
+          <div id="listaPatio" class="space-y-3">
+            <!-- Dinámico -->
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Botón de Exportación -->
+    <button onclick="copiarReporteTexto()" class="w-full bg-zinc-800 hover:bg-zinc-900 active:bg-black text-white font-medium py-3.5 rounded-2xl shadow-md transition flex items-center justify-center gap-2 text-sm sm:text-base">
+      <span class="material-symbols-outlined text-lg">content_copy</span>
+      Copiar Reporte de Texto Limpio
+    </button>
+  </div>
+
+  <script>
+    // ==========================================
+    // CONFIGURACIÓN DE SUPABASE (VANILLA JS)
+    // ==========================================
+    const SUPABASE_URL = 'https://rxpbmlpvfurzmevithdt.supabase.co'; // <--- Pon tu URL de Supabase
+    const SUPABASE_KEY = 'sb_publishable_XbWAD1kY_Ehc9FdhhAYxCw_eE7LVxVV';                   // <--- Pon tu Anon Key
+    
+    // Instanciación usando el cliente global de la CDN
+    const { createClient } = window.supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let registros = [];
+
+    // Inicializar evento de carga
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('fechaFiltro').valueAsDate = new Date();
+      cargarRegistrosDesdeDB();
+    });
+
+    document.getElementById('fechaFiltro').addEventListener('change', cargarRegistrosDesdeDB);
+
+    function toggleCampos() {
+      const estado = document.getElementById('estado').value;
+      const campoChofer = document.getElementById('chofer');
+      const lblDetalle = document.getElementById('lblDetalle');
+
+      if (estado === 'PATIO') {
+        campoChofer.disabled = true;
+        campoChofer.classList.add('bg-zinc-200/50', 'cursor-not-allowed');
+        campoChofer.value = '';
+        lblDetalle.innerText = 'Observación / Nivel / Porcentaje';
+      } else {
+        campoChofer.disabled = false;
+        campoChofer.classList.remove('bg-zinc-200/50', 'cursor-not-allowed');
+        lblDetalle.innerText = 'Detalles Realizados';
+      }
+    }
+
+    // ==========================================
+    // OPERACIONES DATABASE
+    // ==========================================
+    async function cargarRegistrosDesdeDB() {
+      const fechaSeleccionada = document.getElementById('fechaFiltro').value;
+
+      const { data, error } = await db
+        .from('registros_flota')
+        .select('*')
+        .eq('fecha', fechaSeleccionada)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error al cargar datos:', error.message);
+        return;
+      }
+
+      registros = data || [];
+      renderizarListas();
+    }
+
+    async function agregarRegistro() {
+      const estado = document.getElementById('estado').value;
+      const vehiculo = document.getElementById('vehiculo').value.trim() || '[Sin especificar]';
+      const placa = document.getElementById('placa').value.trim().toUpperCase();
+      const chofer = document.getElementById('chofer').value.trim() || '________';
+      const detalle = document.getElementById('detalle').value.trim() || '[Sin especificar]';
+      const fecha = document.getElementById('fechaFiltro').value;
+
+      if (!placa) {
+        alert('Por favor ingresa la placa del vehículo.');
+        return;
+      }
+
+      const { error } = await db
+        .from('registros_flota')
+        .insert([{ fecha, estado, vehiculo, placa, chofer, detalle }]);
+
+      if (error) {
+        alert('Error al guardar en Supabase. Revisa las credenciales o la conexión.');
+        console.error(error.message);
+        return;
+      }
+
+      // Limpiar formulario
+      document.getElementById('vehiculo').value = '';
+      document.getElementById('placa').value = '';
+      document.getElementById('chofer').value = '';
+      document.getElementById('detalle').value = '';
+
+      cargarRegistrosDesdeDB();
+    }
+
+    async function eliminarRegistro(id) {
+      const { error } = await db
+        .from('registros_flota')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        alert('Error al eliminar registro');
+        console.error(error.message);
+        return;
+      }
+
+      cargarRegistrosDesdeDB();
+    }
+
+    // ==========================================
+    // RENDERIZADO VISUAL
+    // ==========================================
+    function renderizarListas() {
+      const containerOperativos = document.getElementById('listaOperativos');
+      const containerPatio = document.getElementById('listaPatio');
+      
+      containerOperativos.innerHTML = '';
+      containerPatio.innerHTML = '';
+
+      let opCount = 0;
+      let patioCount = 0;
+
+      registros.forEach((reg) => {
+        if (reg.estado === 'OPERATIVO') {
+          opCount++;
+          containerOperativos.innerHTML += `
+            <div class="p-3.5 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
+              <div class="space-y-1 text-xs sm:text-sm">
+                <p class="font-bold text-zinc-800">${opCount}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code></p>
+                <p class="text-zinc-600">Chófer: <span class="font-medium text-zinc-700">${reg.chofer}</span></p>
+                <p class="text-zinc-600">Detalles realizados: <span class="text-zinc-800 font-medium">${reg.detalle}</span></p>
+              </div>
+              <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1 transition" title="Eliminar">
+                <span class="material-symbols-outlined text-base">close</span>
+              </button>
+            </div>
+          `;
+        } else {
+          patioCount++;
+          containerPatio.innerHTML += `
+            <div class="p-3.5 bg-zinc-50/80 border border-zinc-200/80 rounded-xl flex justify-between items-start gap-2 shadow-sm hover:bg-white transition">
+              <div class="space-y-1 text-xs sm:text-sm">
+                <p class="font-bold text-zinc-800">${patioCount}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code></p>
+                <p class="text-amber-900 font-medium">Observación: <span class="text-zinc-800 font-normal">${reg.detalle}</span></p>
+              </div>
+              <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1 transition" title="Eliminar">
+                <span class="material-symbols-outlined text-base">close</span>
+              </button>
+            </div>
+          `;
+        }
+      });
+
+      document.getElementById('cantOperativos').innerText = opCount;
+      document.getElementById('cantPatio').innerText = patioCount;
+    }
+
+    function copiarReporteTexto() {
+      const fecha = document.getElementById('fechaFiltro').value;
+      const [year, month, day] = fecha.split('-');
+      const fechaFormateada = `${day}/${month}/${year}`;
+
+      let texto = `VEHICULOS OPERATIVOS (Fecha: ${fechaFormateada}):\n\n`;
+      let countOp = 1;
+      registros.filter(r => r.estado === 'OPERATIVO').forEach(r => {
+        texto += `${countOp}. ${r.vehiculo} — Placa: ${r.placa} — Chófer: ${r.chofer}\n   Detalles realizados: ${r.detalle}\n\n`;
+        countOp++;
+      });
+
+      texto += `VEHICULOS EN PATIO (Fecha: ${fechaFormateada}):\n\n`;
+      let countPatio = 1;
+      registros.filter(r => r.estado === 'PATIO').forEach(r => {
+        texto += `${countPatio}. ${r.vehiculo} — Placa: ${r.placa} — Observación: ${r.detalle}\n\n`;
+        countPatio++;
+      });
+
+      navigator.clipboard.writeText(texto);
+      alert('¡Reporte copiado al portapapeles!');
+    }
+  </script>
+</body>
+</html>
