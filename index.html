@@ -33,124 +33,188 @@
         </div>
       </div>
       
-      <div class="w-full sm:w-auto flex items-center gap-2 bg-zinc-700/60 p-2 rounded-xl border border-zinc-600/50">
-        <span class="material-symbols-outlined text-zinc-300 text-sm pl-1">calendar_today</span>
-        <input type="date" id="fechaFiltro" class="bg-transparent text-zinc-100 text-sm font-medium focus:outline-none w-full sm:w-auto">
-      </div>
+      <!-- Navegación por Pestañas (Tabs) -->
+      <nav class="flex bg-zinc-700/60 p-1 rounded-xl border border-zinc-600/50 w-full sm:w-auto">
+        <button id="tabRegistro" onclick="cambiarPestana('registro')" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-sm">
+          <span class="material-symbols-outlined text-base">edit_note</span>
+          Registro Diario
+        </button>
+        <button id="tabHistorial" onclick="cambiarPestana('historial')" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-base">history</span>
+          Historial
+        </button>
+      </nav>
     </header>
 
-    <!-- Tarjeta Formulario de Entrada -->
-    <section class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-zinc-200/80 space-y-4">
-      <div class="flex items-center gap-2 border-b border-zinc-100 pb-3">
-        <span class="material-symbols-outlined text-emerald-600">add_task</span>
-        <h2 class="text-base sm:text-lg font-bold text-zinc-700">Registrar Unidad</h2>
-      </div>
+    <!-- ========================================== -->
+    <!-- VISTA 1: REGISTRO DIARIO                   -->
+    <!-- ========================================== -->
+    <div id="vistaRegistro" class="space-y-5">
       
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Estado -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Estado de la Unidad</label>
-          <select id="estado" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" onchange="toggleCampos()">
-            <option value="OPERATIVO">🟢 Vehículo Operativo</option>
-            <option value="PATIO">🟡 Vehículo en Patio</option>
-          </select>
-        </div>
-
-        <!-- Tipo de Vehículo -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Tipo de Vehículo</label>
-          <input type="text" id="vehiculo" placeholder="Ej. Mack, NPR, Jac, Batea" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
-        </div>
-
-        <!-- Placa -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Placa(s)</label>
-          <input type="text" id="placa" placeholder="Ej. A12EB3G" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 uppercase outline-none transition">
-        </div>
-
-        <!-- Chófer -->
-        <div class="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-1">
-          <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Chófer Asignado</label>
-          <input type="text" id="chofer" placeholder="Nombre del chófer" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
-        </div>
-
-        <!-- Detalles / Observaciones -->
-        <div class="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-2">
-          <label id="lblDetalle" class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Detalles Realizados</label>
-          <input type="text" id="detalle" placeholder="Trabajos ejecutados u observaciones" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
-        </div>
+      <!-- Barra Superior de Fecha -->
+      <div class="flex justify-between items-center bg-white p-3.5 px-5 rounded-2xl border border-zinc-200/80 shadow-sm">
+        <span class="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1">
+          <span class="material-symbols-outlined text-emerald-600 text-sm">calendar_today</span> Fecha del Reporte:
+        </span>
+        <input type="date" id="fechaFiltro" class="bg-zinc-100 text-zinc-800 text-sm font-bold p-1.5 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
       </div>
 
-      <button onclick="agregarRegistro()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium py-3 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
-        <span class="material-symbols-outlined text-lg">playlist_add</span>
-        Añadir al Registro
+      <!-- Tarjeta Formulario de Entrada -->
+      <section class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-zinc-200/80 space-y-4">
+        <div class="flex items-center gap-2 border-b border-zinc-100 pb-3">
+          <span class="material-symbols-outlined text-emerald-600">add_task</span>
+          <h2 class="text-base sm:text-lg font-bold text-zinc-700">Registrar Unidad</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Estado -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Estado de la Unidad</label>
+            <select id="estado" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" onchange="toggleCampos()">
+              <option value="OPERATIVO">🟢 Vehículo Operativo</option>
+              <option value="PATIO">🟡 Vehículo en Patio</option>
+            </select>
+          </div>
+
+          <!-- Tipo de Vehículo -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Tipo de Vehículo</label>
+            <input type="text" id="vehiculo" placeholder="Ej. Mack, NPR, Jac, Batea" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+          </div>
+
+          <!-- Placa -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Placa(s)</label>
+            <input type="text" id="placa" placeholder="Ej. A12EB3G" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 uppercase outline-none transition">
+          </div>
+
+          <!-- Chófer -->
+          <div class="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-1">
+            <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Chófer Asignado</label>
+            <input type="text" id="chofer" placeholder="Nombre del chófer" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+          </div>
+
+          <!-- Detalles / Observaciones -->
+          <div class="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-2">
+            <label id="lblDetalle" class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Detalles Realizados</label>
+            <input type="text" id="detalle" placeholder="Trabajos ejecutados u observaciones" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+          </div>
+        </div>
+
+        <button onclick="agregarRegistro()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium py-3 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
+          <span class="material-symbols-outlined text-lg">playlist_add</span>
+          Añadir al Registro
+        </button>
+      </section>
+
+      <!-- Listas de Tareas (Tasklist Visual) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        
+        <!-- Lista Operativos -->
+        <section class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-emerald-500 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-4 border-b border-zinc-100 pb-3">
+              <h2 class="font-bold text-emerald-800 text-sm sm:text-base flex items-center gap-2">
+                <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+                VEHÍCULOS OPERATIVOS
+              </h2>
+              <span id="cantOperativos" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">0</span>
+            </div>
+            <div id="listaOperativos" class="space-y-3">
+              <!-- Dinámico -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Lista En Patio -->
+        <section class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-amber-500 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-4 border-b border-zinc-100 pb-3">
+              <h2 class="font-bold text-amber-800 text-sm sm:text-base flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-600">build</span>
+                VEHÍCULOS EN PATIO
+              </h2>
+              <span id="cantPatio" class="text-xs bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full">0</span>
+            </div>
+            <div id="listaPatio" class="space-y-3">
+              <!-- Dinámico -->
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Botón de Exportación -->
+      <button onclick="copiarReporteTexto()" class="w-full bg-zinc-800 hover:bg-zinc-900 active:bg-black text-white font-medium py-3.5 rounded-2xl shadow-md transition flex items-center justify-center gap-2 text-sm sm:text-base">
+        <span class="material-symbols-outlined text-lg">content_copy</span>
+        Copiar Reporte de Texto Limpio
       </button>
-    </section>
-
-    <!-- Listas de Tareas (Tasklist Visual) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-      
-      <!-- Lista Operativos -->
-      <section class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-emerald-500 flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center mb-4 border-b border-zinc-100 pb-3">
-            <h2 class="font-bold text-emerald-800 text-sm sm:text-base flex items-center gap-2">
-              <span class="material-symbols-outlined text-emerald-600">check_circle</span>
-              VEHÍCULOS OPERATIVOS
-            </h2>
-            <span id="cantOperativos" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">0</span>
-          </div>
-          <div id="listaOperativos" class="space-y-3">
-            <!-- Dinámico -->
-          </div>
-        </div>
-      </section>
-
-      <!-- Lista En Patio -->
-      <section class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-amber-500 flex flex-col justify-between">
-        <div>
-          <div class="flex justify-between items-center mb-4 border-b border-zinc-100 pb-3">
-            <h2 class="font-bold text-amber-800 text-sm sm:text-base flex items-center gap-2">
-              <span class="material-symbols-outlined text-amber-600">build</span>
-              VEHÍCULOS EN PATIO
-            </h2>
-            <span id="cantPatio" class="text-xs bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full">0</span>
-          </div>
-          <div id="listaPatio" class="space-y-3">
-            <!-- Dinámico -->
-          </div>
-        </div>
-      </section>
-
     </div>
 
-    <!-- Botón de Exportación -->
-    <button onclick="copiarReporteTexto()" class="w-full bg-zinc-800 hover:bg-zinc-900 active:bg-black text-white font-medium py-3.5 rounded-2xl shadow-md transition flex items-center justify-center gap-2 text-sm sm:text-base">
-      <span class="material-symbols-outlined text-lg">content_copy</span>
-      Copiar Reporte de Texto Limpio
-    </button>
+    <!-- ========================================== -->
+    <!-- VISTA 2: HISTORIAL DIARIO                  -->
+    <!-- ========================================== -->
+    <div id="vistaHistorial" class="hidden space-y-5">
+      <section class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-zinc-200/80 space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-zinc-100 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600">manage_search</span>
+            <h2 class="text-base sm:text-lg font-bold text-zinc-700">Historial de Operaciones</h2>
+          </div>
+          
+          <button onclick="cargarHistorialCompleto()" class="text-xs text-emerald-700 font-bold hover:underline flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">refresh</span> Actualizar Historial
+          </button>
+        </div>
+
+        <!-- Contenedor del Historial por Fechas -->
+        <div id="contenedorHistorial" class="space-y-6">
+          <!-- Se llena dinámicamente con las tarjetas por día -->
+        </div>
+      </section>
+    </div>
+
   </div>
 
   <script>
     // ==========================================
     // CONFIGURACIÓN DE SUPABASE (VANILLA JS)
     // ==========================================
-    const SUPABASE_URL = 'https://rxpbmlpvfurzmevithdt.supabase.co'; // <--- Pon tu URL de Supabase
-    const SUPABASE_KEY = 'sb_publishable_XbWAD1kY_Ehc9FdhhAYxCw_eE7LVxVV';                   // <--- Pon tu Anon Key
+    const SUPABASE_URL = 'https://TU_PROYECTO.supabase.co'; // <--- URL Supabase
+    const SUPABASE_KEY = 'TU_ANON_KEY';                   // <--- Anon Key Supabase
     
-    // Instanciación usando el cliente global de la CDN
     const { createClient } = window.supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let registros = [];
 
-    // Inicializar evento de carga
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('fechaFiltro').valueAsDate = new Date();
       cargarRegistrosDesdeDB();
     });
 
     document.getElementById('fechaFiltro').addEventListener('change', cargarRegistrosDesdeDB);
+
+    // Gestor de Pestañas
+    function cambiarPestana(pestana) {
+      const vRegistro = document.getElementById('vistaRegistro');
+      const vHistorial = document.getElementById('vistaHistorial');
+      const btnReg = document.getElementById('tabRegistro');
+      const btnHist = document.getElementById('tabHistorial');
+
+      if (pestana === 'registro') {
+        vRegistro.classList.remove('hidden');
+        vHistorial.classList.add('hidden');
+        btnReg.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-sm";
+        btnHist.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5";
+      } else {
+        vRegistro.classList.add('hidden');
+        vHistorial.classList.remove('hidden');
+        btnHist.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-sm";
+        btnReg.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold text-zinc-300 hover:text-white transition flex items-center justify-center gap-1.5";
+        cargarHistorialCompleto();
+      }
+    }
 
     function toggleCampos() {
       const estado = document.getElementById('estado').value;
@@ -170,7 +234,7 @@
     }
 
     // ==========================================
-    // OPERACIONES DATABASE
+    // OPERACIONES DATABASE (REGISTRO DIARIO)
     // ==========================================
     async function cargarRegistrosDesdeDB() {
       const fechaSeleccionada = document.getElementById('fechaFiltro').value;
@@ -213,7 +277,6 @@
         return;
       }
 
-      // Limpiar formulario
       document.getElementById('vehiculo').value = '';
       document.getElementById('placa').value = '';
       document.getElementById('chofer').value = '';
@@ -237,9 +300,6 @@
       cargarRegistrosDesdeDB();
     }
 
-    // ==========================================
-    // RENDERIZADO VISUAL
-    // ==========================================
     function renderizarListas() {
       const containerOperativos = document.getElementById('listaOperativos');
       const containerPatio = document.getElementById('listaPatio');
@@ -283,6 +343,115 @@
 
       document.getElementById('cantOperativos').innerText = opCount;
       document.getElementById('cantPatio').innerText = patioCount;
+    }
+
+    // ==========================================
+    // OPERACIONES DATABASE (HISTORIAL COMPLETO)
+    // ==========================================
+    async function cargarHistorialCompleto() {
+      const container = document.getElementById('contenedorHistorial');
+      container.innerHTML = '<p class="text-xs text-zinc-400 font-medium py-4 text-center">Cargando registros históricos...</p>';
+
+      const { data, error } = await db
+        .from('registros_flota')
+        .select('*')
+        .order('fecha', { ascending: false })
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        container.innerHTML = '<p class="text-xs text-red-500 py-4 text-center">Error al obtener el historial.</p>';
+        console.error(error.message);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-xs text-zinc-500 py-4 text-center">No hay registros guardados en la base de datos.</p>';
+        return;
+      }
+
+      // Agrupar registros por fecha
+      const agrupadosPorFecha = {};
+      data.forEach(reg => {
+        if (!agrupadosPorFecha[reg.fecha]) agrupadosPorFecha[reg.fecha] = [];
+        agrupadosPorFecha[reg.fecha].push(reg);
+      });
+
+      container.innerHTML = '';
+
+      // Renderizar por cada día registrado
+      Object.keys(agrupadosPorFecha).forEach(fechaStr => {
+        const items = agrupadosPorFecha[fechaStr];
+        const [year, month, day] = fechaStr.split('-');
+        const fechaFormateada = `${day}/${month}/${year}`;
+
+        const ops = items.filter(i => i.estado === 'OPERATIVO');
+        const patios = items.filter(i => i.estado === 'PATIO');
+
+        let htmlBloque = `
+          <div class="border border-zinc-200 rounded-2xl p-4 sm:p-5 bg-zinc-50/50 space-y-3">
+            <div class="flex justify-between items-center border-b border-zinc-200 pb-2">
+              <span class="text-sm font-bold text-zinc-800 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-emerald-600 text-base">event</span>
+                Fecha: ${fechaFormateada}
+              </span>
+              <span class="text-xs bg-zinc-200 text-zinc-700 px-2.5 py-0.5 rounded-full font-medium">
+                Total: ${items.length} unidades
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+              <!-- Operativos del día -->
+              <div class="space-y-2">
+                <p class="text-xs font-bold text-emerald-800 flex items-center gap-1">🟢 Operativos (${ops.length})</p>
+                <div class="space-y-1.5">
+        `;
+
+        if (ops.length === 0) {
+          htmlBloque += `<p class="text-xs text-zinc-400 italic">Sin registros operativos este día.</p>`;
+        } else {
+          ops.forEach((o, idx) => {
+            htmlBloque += `
+              <div class="p-2.5 bg-white border border-zinc-200 rounded-xl text-xs space-y-0.5">
+                <p class="font-bold text-zinc-800">${idx + 1}. ${o.vehiculo} — <code class="bg-zinc-100 px-1 rounded">${o.placa}</code></p>
+                <p class="text-zinc-600">Chófer: ${o.chofer}</p>
+                <p class="text-zinc-600">Detalles: ${o.detalle}</p>
+              </div>
+            `;
+          });
+        }
+
+        htmlBloque += `
+                </div>
+              </div>
+
+              <!-- En Patio del día -->
+              <div class="space-y-2">
+                <p class="text-xs font-bold text-amber-800 flex items-center gap-1">🟡 En Patio (${patios.length})</p>
+                <div class="space-y-1.5">
+        `;
+
+        if (patios.length === 0) {
+          htmlBloque += `<p class="text-xs text-zinc-400 italic">Sin registros en patio este día.</p>`;
+        } else {
+          patios.forEach((p, idx) => {
+            htmlBloque += `
+              <div class="p-2.5 bg-white border border-zinc-200 rounded-xl text-xs space-y-0.5">
+                <p class="font-bold text-zinc-800">${idx + 1}. ${p.vehiculo} — <code class="bg-zinc-100 px-1 rounded">${p.placa}</code></p>
+                <p class="text-amber-900 font-medium">Obs: ${p.detalle}</p>
+              </div>
+            `;
+          });
+        }
+
+        htmlBloque += `
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.innerHTML += htmlBloque;
+      });
     }
 
     function copiarReporteTexto() {
