@@ -5,13 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Control de Flota — Material Style</title>
   
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Supabase JS Client CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-  <!-- Material Symbols e Iconos Google -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
 
@@ -23,7 +20,6 @@
 
   <div class="max-w-5xl mx-auto space-y-5">
     
-    <!-- Header / App Bar Style Material -->
     <header class="bg-zinc-800 text-zinc-5 p-4 sm:p-5 rounded-2xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div class="flex items-center gap-3">
         <span class="material-symbols-outlined text-emerald-400 text-3xl">local_shipping</span>
@@ -33,7 +29,6 @@
         </div>
       </div>
       
-      <!-- Navegación por Pestañas (Tabs) -->
       <nav class="flex bg-zinc-700/60 p-1 rounded-xl border border-zinc-600/50 w-full sm:w-auto">
         <button id="tabRegistro" onclick="cambiarPestana('registro')" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-sm">
           <span class="material-symbols-outlined text-base">edit_note</span>
@@ -46,12 +41,8 @@
       </nav>
     </header>
 
-    <!-- ========================================== -->
-    <!-- VISTA 1: REGISTRO DIARIO                   -->
-    <!-- ========================================== -->
     <div id="vistaRegistro" class="space-y-5">
       
-      <!-- Barra Superior de Fecha -->
       <div class="flex justify-between items-center bg-white p-3.5 px-5 rounded-2xl border border-zinc-200/80 shadow-sm">
         <span class="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1">
           <span class="material-symbols-outlined text-emerald-600 text-sm">calendar_today</span> Fecha del Reporte:
@@ -59,7 +50,6 @@
         <input type="date" id="fechaFiltro" class="bg-zinc-100 text-zinc-800 text-sm font-bold p-1.5 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">
       </div>
 
-      <!-- Tarjeta Formulario de Entrada -->
       <section class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-zinc-200/80 space-y-4">
         <div class="flex items-center gap-2 border-b border-zinc-100 pb-3">
           <span class="material-symbols-outlined text-emerald-600">add_task</span>
@@ -67,7 +57,6 @@
         </div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Estado -->
           <div class="flex flex-col gap-1.5">
             <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Estado de la Unidad</label>
             <select id="estado" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" onchange="toggleCampos()">
@@ -76,25 +65,21 @@
             </select>
           </div>
 
-          <!-- Tipo de Vehículo -->
           <div class="flex flex-col gap-1.5">
             <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Tipo de Vehículo</label>
             <input type="text" id="vehiculo" placeholder="Ej. Mack, NPR, Jac, Batea" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
           </div>
 
-          <!-- Placa -->
           <div class="flex flex-col gap-1.5">
             <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Placa(s)</label>
             <input type="text" id="placa" placeholder="Ej. A12EB3G" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 uppercase outline-none transition">
           </div>
 
-          <!-- Chófer -->
           <div class="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-1">
             <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Chófer Asignado</label>
             <input type="text" id="chofer" placeholder="Nombre del chófer" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
           </div>
 
-          <!-- Detalles / Observaciones -->
           <div class="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-2">
             <label id="lblDetalle" class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Detalles Realizados</label>
             <input type="text" id="detalle" placeholder="Trabajos ejecutados u observaciones" class="border border-zinc-300 p-3 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
@@ -107,10 +92,8 @@
         </button>
       </section>
 
-      <!-- Listas de Tareas (Tasklist Visual) -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
         
-        <!-- Lista Operativos -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-emerald-500 flex flex-col justify-between">
           <div>
             <div class="flex justify-between items-center mb-4 border-b border-zinc-100 pb-3">
@@ -121,12 +104,10 @@
               <span id="cantOperativos" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">0</span>
             </div>
             <div id="listaOperativos" class="space-y-3">
-              <!-- Dinámico -->
-            </div>
+              </div>
           </div>
         </section>
 
-        <!-- Lista En Patio -->
         <section class="bg-white p-5 rounded-2xl shadow-sm border-t-4 border-amber-500 flex flex-col justify-between">
           <div>
             <div class="flex justify-between items-center mb-4 border-b border-zinc-100 pb-3">
@@ -137,23 +118,18 @@
               <span id="cantPatio" class="text-xs bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full">0</span>
             </div>
             <div id="listaPatio" class="space-y-3">
-              <!-- Dinámico -->
-            </div>
+              </div>
           </div>
         </section>
 
       </div>
 
-      <!-- Botón de Exportación -->
       <button onclick="copiarReporteTexto()" class="w-full bg-zinc-800 hover:bg-zinc-900 active:bg-black text-white font-medium py-3.5 rounded-2xl shadow-md transition flex items-center justify-center gap-2 text-sm sm:text-base">
         <span class="material-symbols-outlined text-lg">content_copy</span>
-        Copiar Reporte de Texto Limpio
+        Copiar Reporte del Día Seleccionado
       </button>
     </div>
 
-    <!-- ========================================== -->
-    <!-- VISTA 2: HISTORIAL DIARIO                  -->
-    <!-- ========================================== -->
     <div id="vistaHistorial" class="hidden space-y-5">
       <section class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-zinc-200/80 space-y-4">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-zinc-100 pb-3">
@@ -167,10 +143,8 @@
           </button>
         </div>
 
-        <!-- Contenedor del Historial por Fechas -->
         <div id="contenedorHistorial" class="space-y-6">
-          <!-- Se llena dinámicamente con las tarjetas por día -->
-        </div>
+          </div>
       </section>
     </div>
 
@@ -178,15 +152,16 @@
 
   <script>
     // ==========================================
-    // CONFIGURACIÓN DE SUPABASE (VANILLA JS)
+    // CONFIGURACIÓN DE SUPABASE
     // ==========================================
-    const SUPABASE_URL = 'https://rxpbmlpvfurzmevithdt.supabase.co'; // <--- URL Supabase
-    const SUPABASE_KEY = 'sb_publishable_XbWAD1kY_Ehc9FdhhAYxCw_eE7LVxVV';                   // <--- Anon Key Supabase
+    const SUPABASE_URL = 'https://rxpbmlpvfurzmevithdt.supabase.co'; // <--- Pon tu URL real de Supabase
+    const SUPABASE_KEY = 'sb_publishable_XbWAD1kY_Ehc9FdhhAYxCw_eE7LVxVV';                   // <--- Pon tu Anon Key real
     
     const { createClient } = window.supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let registros = [];
+    let historialGlobal = {};
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('fechaFiltro').valueAsDate = new Date();
@@ -285,7 +260,31 @@
       cargarRegistrosDesdeDB();
     }
 
+    // Mover un vehículo de Patio a Operativo en la base de datos
+    async function cambiarAOperativo(id) {
+      const choferNuevo = prompt('Ingrese el nombre del chófer asignado:', '________');
+      
+      const { error } = await db
+        .from('registros_flota')
+        .update({ 
+          estado: 'OPERATIVO',
+          chofer: choferNuevo || '________'
+        })
+        .eq('id', id);
+
+      if (error) {
+        alert('Error al actualizar estado del vehículo');
+        console.error(error.message);
+        return;
+      }
+
+      cargarRegistrosDesdeDB();
+    }
+
+    // Eliminar por completo el registro de la base de datos
     async function eliminarRegistro(id) {
+      if (!confirm('¿Deseas eliminar completamente este registro?')) return;
+
       const { error } = await db
         .from('registros_flota')
         .delete()
@@ -320,8 +319,8 @@
                 <p class="text-zinc-600">Chófer: <span class="font-medium text-zinc-700">${reg.chofer}</span></p>
                 <p class="text-zinc-600">Detalles realizados: <span class="text-zinc-800 font-medium">${reg.detalle}</span></p>
               </div>
-              <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1 transition" title="Eliminar">
-                <span class="material-symbols-outlined text-base">close</span>
+              <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1 transition" title="Eliminar definitivamente">
+                <span class="material-symbols-outlined text-base">delete</span>
               </button>
             </div>
           `;
@@ -333,9 +332,14 @@
                 <p class="font-bold text-zinc-800">${patioCount}. ${reg.vehiculo} — Placa: <code class="bg-zinc-200/70 text-zinc-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold">${reg.placa}</code></p>
                 <p class="text-amber-900 font-medium">Observación: <span class="text-zinc-800 font-normal">${reg.detalle}</span></p>
               </div>
-              <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1 transition" title="Eliminar">
-                <span class="material-symbols-outlined text-base">close</span>
-              </button>
+              <div class="flex items-center gap-1">
+                <button onclick="cambiarAOperativo('${reg.id}')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 p-1 rounded-lg transition flex items-center justify-center" title="Pasar a Operativo">
+                  <span class="material-symbols-outlined text-base font-bold">check</span>
+                </button>
+                <button onclick="eliminarRegistro('${reg.id}')" class="text-zinc-400 hover:text-red-500 p-1 transition" title="Eliminar definitivamente">
+                  <span class="material-symbols-outlined text-base">delete</span>
+                </button>
+              </div>
             </div>
           `;
         }
@@ -369,18 +373,16 @@
         return;
       }
 
-      // Agrupar registros por fecha
-      const agrupadosPorFecha = {};
+      historialGlobal = {};
       data.forEach(reg => {
-        if (!agrupadosPorFecha[reg.fecha]) agrupadosPorFecha[reg.fecha] = [];
-        agrupadosPorFecha[reg.fecha].push(reg);
+        if (!historialGlobal[reg.fecha]) historialGlobal[reg.fecha] = [];
+        historialGlobal[reg.fecha].push(reg);
       });
 
       container.innerHTML = '';
 
-      // Renderizar por cada día registrado
-      Object.keys(agrupadosPorFecha).forEach(fechaStr => {
-        const items = agrupadosPorFecha[fechaStr];
+      Object.keys(historialGlobal).forEach(fechaStr => {
+        const items = historialGlobal[fechaStr];
         const [year, month, day] = fechaStr.split('-');
         const fechaFormateada = `${day}/${month}/${year}`;
 
@@ -388,19 +390,25 @@
         const patios = items.filter(i => i.estado === 'PATIO');
 
         let htmlBloque = `
-          <div class="border border-zinc-200 rounded-2xl p-4 sm:p-5 bg-zinc-50/50 space-y-3">
-            <div class="flex justify-between items-center border-b border-zinc-200 pb-2">
-              <span class="text-sm font-bold text-zinc-800 flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-emerald-600 text-base">event</span>
-                Fecha: ${fechaFormateada}
-              </span>
-              <span class="text-xs bg-zinc-200 text-zinc-700 px-2.5 py-0.5 rounded-full font-medium">
-                Total: ${items.length} unidades
-              </span>
+          <div class="border border-zinc-200 rounded-2xl p-4 sm:p-5 bg-zinc-50/50 space-y-3 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-200 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-zinc-800 flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-emerald-600 text-base">event</span>
+                  Fecha: ${fechaFormateada}
+                </span>
+                <span class="text-xs bg-zinc-200 text-zinc-700 px-2.5 py-0.5 rounded-full font-medium">
+                  Total: ${items.length} unidades
+                </span>
+              </div>
+
+              <button onclick="copiarReporteHistorial('${fechaStr}')" class="bg-zinc-800 hover:bg-zinc-900 active:bg-black text-white text-xs font-medium px-3 py-1.5 rounded-xl transition flex items-center justify-center gap-1.5 self-start sm:self-auto">
+                <span class="material-symbols-outlined text-sm">content_copy</span>
+                Copiar Reporte Día
+              </button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-              <!-- Operativos del día -->
               <div class="space-y-2">
                 <p class="text-xs font-bold text-emerald-800 flex items-center gap-1">🟢 Operativos (${ops.length})</p>
                 <div class="space-y-1.5">
@@ -412,7 +420,7 @@
           ops.forEach((o, idx) => {
             htmlBloque += `
               <div class="p-2.5 bg-white border border-zinc-200 rounded-xl text-xs space-y-0.5">
-                <p class="font-bold text-zinc-800">${idx + 1}. ${o.vehiculo} — <code class="bg-zinc-100 px-1 rounded">${o.placa}</code></p>
+                <p class="font-bold text-zinc-800">${idx + 1}. ${o.vehiculo} — <code class="bg-zinc-100 px-1 rounded font-bold">${o.placa}</code></p>
                 <p class="text-zinc-600">Chófer: ${o.chofer}</p>
                 <p class="text-zinc-600">Detalles: ${o.detalle}</p>
               </div>
@@ -424,7 +432,6 @@
                 </div>
               </div>
 
-              <!-- En Patio del día -->
               <div class="space-y-2">
                 <p class="text-xs font-bold text-amber-800 flex items-center gap-1">🟡 En Patio (${patios.length})</p>
                 <div class="space-y-1.5">
@@ -436,7 +443,7 @@
           patios.forEach((p, idx) => {
             htmlBloque += `
               <div class="p-2.5 bg-white border border-zinc-200 rounded-xl text-xs space-y-0.5">
-                <p class="font-bold text-zinc-800">${idx + 1}. ${p.vehiculo} — <code class="bg-zinc-100 px-1 rounded">${p.placa}</code></p>
+                <p class="font-bold text-zinc-800">${idx + 1}. ${p.vehiculo} — <code class="bg-zinc-100 px-1 rounded font-bold">${p.placa}</code></p>
                 <p class="text-amber-900 font-medium">Obs: ${p.detalle}</p>
               </div>
             `;
@@ -454,27 +461,39 @@
       });
     }
 
+    // ==========================================
+    // FUNCIONES DE COPIADO DE REPORTES
+    // ==========================================
     function copiarReporteTexto() {
       const fecha = document.getElementById('fechaFiltro').value;
-      const [year, month, day] = fecha.split('-');
+      generarYCopiarTexto(registros, fecha);
+    }
+
+    function copiarReporteHistorial(fechaStr) {
+      const itemsDia = historialGlobal[fechaStr] || [];
+      generarYCopiarTexto(itemsDia, fechaStr);
+    }
+
+    function generarYCopiarTexto(listaRegistros, fechaStr) {
+      const [year, month, day] = fechaStr.split('-');
       const fechaFormateada = `${day}/${month}/${year}`;
 
       let texto = `VEHICULOS OPERATIVOS (Fecha: ${fechaFormateada}):\n\n`;
       let countOp = 1;
-      registros.filter(r => r.estado === 'OPERATIVO').forEach(r => {
+      listaRegistros.filter(r => r.estado === 'OPERATIVO').forEach(r => {
         texto += `${countOp}. ${r.vehiculo} — Placa: ${r.placa} — Chófer: ${r.chofer}\n   Detalles realizados: ${r.detalle}\n\n`;
         countOp++;
       });
 
       texto += `VEHICULOS EN PATIO (Fecha: ${fechaFormateada}):\n\n`;
       let countPatio = 1;
-      registros.filter(r => r.estado === 'PATIO').forEach(r => {
+      listaRegistros.filter(r => r.estado === 'PATIO').forEach(r => {
         texto += `${countPatio}. ${r.vehiculo} — Placa: ${r.placa} — Observación: ${r.detalle}\n\n`;
         countPatio++;
       });
 
       navigator.clipboard.writeText(texto);
-      alert('¡Reporte copiado al portapapeles!');
+      alert(`¡Reporte del ${fechaFormateada} copiado al portapapeles!`);
     }
   </script>
 </body>
